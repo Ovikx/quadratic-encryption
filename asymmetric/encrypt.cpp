@@ -2,7 +2,7 @@
 #include <vector>
 #include <random>
 #include <time.h>
-#include <math.h>
+#include <fstream>
 
 using namespace std;
 
@@ -11,13 +11,15 @@ class QuadraticEncryption{
     public:
         string public_key;
         string private_key;
+        bool file_output;
         int key_length;
         int filter_size;
 
-        QuadraticEncryption(int key_length){
+        QuadraticEncryption(int key_length, bool file_output = false){
             this->filter_size = generate_filter_size();
             this->key_length = key_length;
             this->public_key = generate_public_key();
+            this->file_output = file_output;
         }
 
         int generate_filter_size(){
@@ -43,19 +45,22 @@ class QuadraticEncryption{
             return random_key;
         }
 
-        float calculate_Y(float a, int b, int c, int x){
-            return a*(pow(x, 2)) + b*x + c;
+        int calculate_Y(float a, int b, int c, int x){
+            return int(a*(x*x) + b*x + c);
         }
 
         string encrypt(string message, string key){
-            key = key.substr(1);
             string encrypted;
+            string a_string;
+            string b_string;
+            string c_string;
             string char_delimiter(filter_size, '|');
             string start_variation_delimiter(filter_size, '<');
             string end_variation_delimiter(filter_size, '>');
+            key = key.substr(1);
             
             for (int i = 0; i < (public_key.length() - (2*filter_size+1)); i++){
-                string a_string = public_key.substr(0,i+1);
+                a_string = public_key.substr(0,i+1);
                 float a = 0;
 
                 for (char c : a_string){
@@ -65,8 +70,8 @@ class QuadraticEncryption{
                 a = 1/a;
 
                 for (int j = 0; j < (public_key.length() - (i+1 + 2*filter_size)); j++){
-                    string b_string = public_key.substr(i+filter_size+1, j+1);
-                    string c_string = public_key.substr(i+2*filter_size+j+2);
+                    b_string = public_key.substr(i+filter_size+1, j+1);
+                    c_string = public_key.substr(i+2*filter_size+j+2);
                     int b = 0;
                     int c = 0;
 
@@ -88,6 +93,13 @@ class QuadraticEncryption{
                 }
 
             }
+
+            if (file_output){
+                ofstream outfile("encrypted.txt");
+                outfile << encrypted << endl;
+                outfile.close();
+            }
+            
             return encrypted;
         }
 };
@@ -95,6 +107,6 @@ class QuadraticEncryption{
 int main(){
     QuadraticEncryption q(50);
     //q.encrypt("hi world, how are you today? I'm looking forward to meeting everyone on this fine night!", q.public_key);
-    cout << q.public_key << "\n" << q.encrypt("hi!", q.public_key);
+    cout << q.public_key << "\n" << q.encrypt("hi how are you doing on this fine thursday night?", q.public_key);
     return 0;
 }

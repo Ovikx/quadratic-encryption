@@ -1,3 +1,5 @@
+# Some brainstorming I did before writing the cpp code
+
 import random
 
 class Delimiter:
@@ -13,13 +15,14 @@ class Delimiter:
                 b = self.key[i+self.filter_size+1:i+self.filter_size+j+2]
                 c = self.key[i+2*self.filter_size+j+2:]
                 combos.append((a, b, c))
+        print(len(combos))
         return combos
 
     def __str__(self):
         return self.key
 
 
-key = ''.join([chr(random.randint(32,126)) for i in range(500)])
-d = Delimiter('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeellooo')
+key = ''.join([chr(random.randint(32,126)) for i in range(100)])
+d = Delimiter(key)
 print('Python')
 res = d.split()

@@ -93,16 +93,23 @@ class QuadraticEncryption{
             if (file_output){
                 ofstream outfile("encrypted.txt");
                 outfile << encrypted << endl;
-                cout << "File saved in current directory." << endl;
+                cout << "Encrypted text saved in current directory." << endl;
                 outfile.close();
             }
 
             return encrypted;
+        }
+
+        void save_key(){
+            ofstream outfile("key.txt");
+            outfile << key << endl;
+            cout << "Key saved in current directory." << endl;
         }
 };
 
 int main(){
     QuadraticEncryption q(2048, true);
     cout << q.encrypt("hello to anyone reading this", q.key) << endl;
+    q.save_key();
     return 0;
 }

@@ -74,9 +74,6 @@ class QuadraticEncryption{
 
         string encrypt(string message, string k){
             string encrypted;
-            string a_string;
-            string b_string;
-            string c_string;
             string char_delimiter(3, '|');
 
             random_device rd;
@@ -108,8 +105,7 @@ class QuadraticEncryption{
 };
 
 int main(){
-    QuadraticEncryption q(2048, true);
+    QuadraticEncryption q(2048);
     cout << q.encrypt("hello to anyone reading this", q.key) << endl;
-    q.save_key();
     return 0;
 }

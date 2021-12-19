@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 #include <vector>
 #include <tuple>
 #include <random>
@@ -13,13 +14,11 @@ class QuadraticEncryption{
     public:
         string key;
         string delim = "<<>>";
-        bool file_output;
         int key_length;
 
-        QuadraticEncryption(int key_length, bool file_output = false){
+        QuadraticEncryption(int key_length){
             this->key_length = key_length;
             this->key = generate_key();
-            this->file_output = file_output;
         }
 
        tuple<float, int, int> get_coefficients(string k){
@@ -72,12 +71,13 @@ class QuadraticEncryption{
             return int(a*(x*x) + b*x + c);
         }
 
-        string encrypt(string message, string k){
+        double calculate_X(double a, int b, int c, int y){
+            return (sqrt(4*a*(y-c)+b*b)-b)/(2*a);
+        }
+
+        string encrypt(string message, string k, bool file_output = false){
             string encrypted;
             string char_delimiter(3, '|');
-
-            random_device rd;
-            default_random_engine gen(rd());
             float a;
             int b;
             int c;
@@ -97,15 +97,59 @@ class QuadraticEncryption{
             return encrypted;
         }
 
+        string decrypt(string message, string k){
+            double a;
+            int b;
+            int c;
+            tie(a, b, c) = get_coefficients(k);
+            string decrypted;
+            string current_num;
+
+            for (char ch : message){
+                if (int(ch) == 124){
+                    if (current_num != ""){
+                        decrypted += char(round(calculate_X(a, b, c, stoi(current_num))));
+                        current_num = "";
+                    }
+                    continue;
+                }
+                current_num += ch;
+            }
+            return decrypted;
+        }
+
         void save_key(){
             ofstream outfile("key.txt");
             outfile << key << endl;
             cout << "Key saved in current directory." << endl;
         }
+
+        
 };
 
 int main(){
-    QuadraticEncryption q(2048);
-    cout << q.encrypt("hello to anyone reading this", q.key) << endl;
+    QuadraticEncryption q(64);
+
+    q.encrypt("Hello to anyone reading this!", q.key, true);
+    q.save_key();
+
+    string message; 
+    string key;
+
+    ifstream message_file("encrypted.txt");
+    ifstream key_file ("key.txt");
+    
+
+    if (message_file.is_open()){
+        getline(message_file, message);
+        message_file.close();
+    }
+
+    if (key_file.is_open()){
+        getline(key_file, key);
+        key_file.close();
+    }
+
+    cout << "Decrypted message: " << q.decrypt(message, key);
     return 0;
 }
